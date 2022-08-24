@@ -1,15 +1,19 @@
 //import logo from './logo.svg';
 import React from 'react';
+import { Route, Switch } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import PopupWithForm from './PopupWithForm';
 import Main from './Main';
 import ImagePopup from './ImagePopup';
+import Login from './Login';
+import Register from './Register';
 import api from '../utils/api';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
+import ProtectedRoute from './ProtectedRoute';
 
 
 
@@ -21,6 +25,7 @@ function App() {
   const [selectedCard, setSelectedCard] = React.useState({});
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
+  const[loggedIn, setLoggedIn] = React.useState(false);
 
   React.useEffect(()=>{
     api.getUserInfo()
@@ -116,14 +121,27 @@ function closeAllPopups(){
   <CurrentUserContext.Provider value={currentUser}>
     <div className="page">
         <Header/>
-        <Main
-        cards={cards}
-        onCardClick = {handleCardClick}
-        onCardLike = {handleCardLike}
-        onCardDelete = {handleCardDelete}
-        onEditProfile ={handleEditProfileClick}
-        onAddPlace = {handleAddPlaceClick}
-        onEditAvatar = {handleEditAvatarClick}/>
+        <Switch>
+          <Route path="sign-up">
+            <Register/>
+          </Route>
+          <Route path="/sign-in">
+            <Login/>
+          </Route>
+          <ProtectedRoute 
+            path="/"
+            loggedIn = {loggedIn}
+            component = {Main}
+            cards={cards}
+            onCardClick = {handleCardClick}
+            onCardLike = {handleCardLike}
+            onCardDelete = {handleCardDelete}
+            onEditProfile ={handleEditProfileClick}
+            onAddPlace = {handleAddPlaceClick}
+            onEditAvatar = {handleEditAvatarClick}/>       
+        </Switch>
+
+       
         <EditProfilePopup onClose = {closeAllPopups} isOpen = {isEditProfilePopupOpen} onUpdateUser = {handleUpdateUser}/>
         <EditAvatarPopup onClose={closeAllPopups} isOpen = {isEditAvatarPopupOpen} onUpdateAvatar = {handleUpdateAvatar}/>
         <AddPlacePopup onClose={closeAllPopups} isOpen = {isAddPlacePopupOpen} onAddPlace = {handleAddPlace} />
