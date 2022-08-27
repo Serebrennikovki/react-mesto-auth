@@ -52,3 +52,14 @@
 @import url(./blocks/formAuth/__input/formAuth__input.css);
 @import url(./blocks/formAuth/__input/_type_email/formAuth__input_type_email.css);
 @import url(./blocks/formAuth/__input/_type_password/formAuth__input_type_password.css);
+@import url(./blocks/formAuth/__button/formAuth__button.css);
+@import url(./blocks/formAuth/__link/formAuth__link.css);
+@import url(./blocks/header/__link/header__link.css);
+@import url(./blocks/header/__containerUserInfo/header__containerUserInfo.css);
+@import url(./blocks/header/__login/header__login.css);
+@import url(./blocks/header/__link/_type_out/header__link_type_out.css);
+@import url(./blocks/popup/__container-infoToolTip/popup__container-infoToolTip.css);
+@import url(./blocks/popup/__img/popup__img.css);
+@import url(./blocks/popup/__text/popup__text.css);
+@import url(./blocks/header/__button/header__button.css);
+

@@ -1,6 +1,6 @@
 //import logo from './logo.svg';
 import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, useHistory } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import PopupWithForm from './PopupWithForm';
@@ -14,7 +14,8 @@ import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
 import ProtectedRoute from './ProtectedRoute';
-
+import InfoToolTip from './InfoToolTip';
+import {checkJWT} from '../utils/auth.js';
 
 
 function App() {
@@ -25,7 +26,11 @@ function App() {
   const [selectedCard, setSelectedCard] = React.useState({});
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
-  const[loggedIn, setLoggedIn] = React.useState(false);
+  const [loggedIn, setLoggedIn] = React.useState(false);
+  const [isInfoToolPopupOpen, setInfoToolPopupOpen] = React.useState(false);
+  const [isSuccessAuth, setIsSuccessAuth] = React.useState(false);
+  const [userEmail, setUserEmail] = React.useState('');
+  const history = useHistory();
 
   React.useEffect(()=>{
     api.getUserInfo()
@@ -42,6 +47,10 @@ function App() {
       })
       .catch((error)=>{console.log(error);})
   }, []);
+  
+  React.useEffect(()=>{
+    checkToken();
+  },[]);
 
   function handleCardLike(card){
     const isLiked = card.likes.some(i=> i._id === currentUser._id);
@@ -113,20 +122,48 @@ function closeAllPopups(){
   setIsEditProfilePopupOpen(false);
   setIsEditAvatarPopupOpen(false);
   setIsImagePopupOpen(false);
+  setInfoToolPopupOpen(false);
   }
-
+function handleResAuth(isSuccess){
+  setIsSuccessAuth(isSuccess);
+  setInfoToolPopupOpen(true);
+}
+function checkToken(){
+  if (localStorage.getItem('jwt')){
+    let jwt = localStorage.getItem('jwt');
+    checkJWT(jwt)
+    .then(({data})=>{
+      console.log(data);
+      if(data){
+        setUserEmail(data.email);
+        setLoggedIn(true);
+        console.log(loggedIn,userEmail);
+        history.push('/');
+      }
+    })
+    .catch((error)=>{console.log(error);})
+  }
+}
 
 
   return (
   <CurrentUserContext.Provider value={currentUser}>
     <div className="page">
-        <Header/>
+        <Header
+          handleLogin={setLoggedIn}
+          email={userEmail}
+        />
         <Switch>
-          <Route path="sign-up">
-            <Register/>
+          <Route path="/signup">
+            <Register
+            onResultAuth={handleResAuth}
+            />
           </Route>
-          <Route path="/sign-in">
-            <Login/>
+          <Route path="/signin">
+            <Login
+              handleLogin={setLoggedIn}
+              setUserEmail={setUserEmail}
+            />
           </Route>
           <ProtectedRoute 
             path="/"
@@ -140,8 +177,11 @@ function closeAllPopups(){
             onAddPlace = {handleAddPlaceClick}
             onEditAvatar = {handleEditAvatarClick}/>       
         </Switch>
-
-       
+        <InfoToolTip 
+          isOpen = {isInfoToolPopupOpen}
+          onClose = {closeAllPopups}
+          isSuccess = {isSuccessAuth}
+        />
         <EditProfilePopup onClose = {closeAllPopups} isOpen = {isEditProfilePopupOpen} onUpdateUser = {handleUpdateUser}/>
         <EditAvatarPopup onClose={closeAllPopups} isOpen = {isEditAvatarPopupOpen} onUpdateAvatar = {handleUpdateAvatar}/>
         <AddPlacePopup onClose={closeAllPopups} isOpen = {isAddPlacePopupOpen} onAddPlace = {handleAddPlace} />
