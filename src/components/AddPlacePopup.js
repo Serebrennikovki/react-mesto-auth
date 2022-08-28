@@ -1,19 +1,31 @@
-import { render } from "@testing-library/react";
 import PopupWithForm from "./PopupWithForm";
-import { useRef} from 'react';
+import { useState, useEffect} from 'react';
 
 function AddPlacePopup({onClose, isOpen, onAddPlace}){
-    const namePlaceRef = useRef();
-    const linkPlaceRef = useRef();
+    const initialFormData = {
+        name: '',
+        link: ''
+    };
+    const [formData, setFormData] = useState(initialFormData); 
+
+    useEffect(()=>{
+        setFormData(initialFormData);
+    },[isOpen]);
+
+     function handleInput(e){
+        const {name, value} = e.target;
+        setFormData((prevState) => {
+            return {
+                ...prevState,
+                [name]: value
+            } 
+        } )
+
+    }
 
     function handleSubmitAddPlace(e){
         e.preventDefault();
-        onAddPlace({
-            name:namePlaceRef.current.value,
-            link:linkPlaceRef.current.value
-        })
-        namePlaceRef.current.value = '';
-        linkPlaceRef.current.value = '';
+        onAddPlace(formData);
     }
 
     return <PopupWithForm
@@ -23,11 +35,11 @@ function AddPlacePopup({onClose, isOpen, onAddPlace}){
         name="addCard"
         title="Добавить место">
           <div className = "popup__container">
-              <input required id="nameCardInput" className="popup__input-text popup__input-text_field_name" name="name" placeholder="Название" type="text" minLength="2" maxLength="30" ref={namePlaceRef}/> 
+              <input required id="nameCardInput" className="popup__input-text popup__input-text_field_name" name="name" placeholder="Название" type="text" minLength="2" onChange={(e)=>{handleInput(e)}} maxLength="30" value={formData.name}/> 
               <span className="popup__input-error" id="nameCardInput-error"></span>
           </div>
           <div className ="popup__container">
-              <input required id="URLInput" className="popup__input-text popup__input-text_field_job" name='link' placeholder="Ссылка на картинку" type="url" ref={linkPlaceRef}/>
+              <input required id="URLInput" className="popup__input-text popup__input-text_field_job" name='link' placeholder="Ссылка на картинку" type="url" onChange={(e)=>{handleInput(e)}} value={formData.link}/>
               <span className="popup__input-error" id="URLInput-error"></span>
           </div>
       </PopupWithForm>

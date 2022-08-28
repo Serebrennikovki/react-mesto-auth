@@ -15,7 +15,7 @@ import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
 import ProtectedRoute from './ProtectedRoute';
 import InfoToolTip from './InfoToolTip';
-import {checkJWT} from '../utils/auth.js';
+import {register,authorize,checkJWT} from '../utils/auth.js';
 
 
 function App() {
@@ -50,7 +50,7 @@ function App() {
   
   React.useEffect(()=>{
     checkToken();
-  },[]);
+  }, []);
 
   function handleCardLike(card){
     const isLiked = card.likes.some(i=> i._id === currentUser._id);
@@ -145,6 +145,44 @@ function checkToken(){
   }
 }
 
+function onLogin(e, email, password){
+    e.preventDefault();
+    authorize(email, password)
+    .then((data)=>{
+        if(data){
+            localStorage.setItem('jwt', data.token);
+            setUserEmail(email);
+            setLoggedIn(true);
+            history.push('/');
+        }
+    })
+    .catch((err)=>{
+        console.log(err);
+    })
+}
+
+function onRegistration(e, email, password){
+  e.preventDefault();
+  register(email, password)
+  .then((data)=>{
+      if(data){
+          console.log(data);
+          history.push('/signin');
+          handleResAuth(true);
+      }
+      else{
+          console.log(data);
+          handleResAuth(false);
+      }
+  })
+  .catch((err)=>{
+      console.log(err);
+      handleResAuth(false);
+  })
+  console.log(email,password);
+}
+
+
 
   return (
   <CurrentUserContext.Provider value={currentUser}>
@@ -156,12 +194,12 @@ function checkToken(){
         <Switch>
           <Route path="/signup">
             <Register
-            onResultAuth={handleResAuth}
+            onRegistration={onRegistration}
             />
           </Route>
           <Route path="/signin">
             <Login
-              handleLogin={setLoggedIn}
+              onLogin={onLogin}
               setUserEmail={setUserEmail}
             />
           </Route>

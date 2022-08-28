@@ -1,4 +1,3 @@
-import { render } from "@testing-library/react";
 import { useRef,useContext } from "react";
 import PopupWithForm from "./PopupWithForm";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
